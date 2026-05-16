@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim 
 from model import ResNet18 
 from dataset import get_dataloaders
+import matplotlib.pyplot as plt
 
 if torch.cuda.is_available():
     device = torch.device("cuda")
@@ -13,6 +14,7 @@ print(f"Using device: {device}")
 Batch_Size = 128
 Epochs = 164
 learning_rate = 0.1
+epochs_range = range(1, Epochs + 1)
 
 train_loader, test_loader = get_dataloaders(batch_size = Batch_Size)
 model = ResNet18().to(device)
@@ -74,7 +76,7 @@ def validate(epoch):
     return epoch_loss, epoch_acc
 
 if __name__ == '__main__':
-    for epoch in range(1, Epochs + 1):
+    for epoch in epochs_range:
         train_loss, train_acc = train(epoch)
         val_loss, val_acc = validate(epoch)
 
@@ -87,3 +89,25 @@ if __name__ == '__main__':
 
     torch.save(model.state_dict(), 'resnet18_cifar10.pth')
     print("training complete, weights saved")
+
+    plt.figure(figsize = (12,4))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs_range, train_losses, label = 'training loss', color = 'lime')
+    plt.plot(epochs_range, val_losses, label = 'validation loss', color = 'orchid')
+    plt.ylabel('loss')
+    plt.xlabel('epochs')
+    plt.legend()
+    plt.title('loss curves of epochs')
+
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs_range, train_accs, label = 'training accuracy', color = 'lime')
+    plt.plot(epochs_range, val_accs, label = 'validation accuracy', color = 'orchid')
+    plt.ylabel('accuracy %')
+    plt.xlabel('epochs')
+    plt.legend()
+    plt.title('accuracy curves over epochs')
+
+    plt.tight_layout()
+    plt.savefig('visualisations.png')
+    print('plots successfully saved as visualisations.png')
